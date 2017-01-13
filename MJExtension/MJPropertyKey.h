@@ -20,6 +20,7 @@ typedef enum {
 /** key的名字 */
 @property (copy,   nonatomic) NSString *name;
 /** key的种类，可能是@"10"，可能是@"age" */
+// 黄玉辉：如果是数字，则key类似于 @"nameChangedTime" : @"name.info[1].nameChangedTime"。
 @property (assign, nonatomic) MJPropertyKeyType type;
 
 /**

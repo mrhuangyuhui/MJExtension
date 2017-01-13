@@ -14,6 +14,7 @@
 @implementation MJPropertyType
 
 static NSMutableDictionary *types_;
+// 黄玉辉：与 + (void)load; 什么区别？
 + (void)initialize
 {
     types_ = [NSMutableDictionary dictionary];

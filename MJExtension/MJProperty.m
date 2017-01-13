@@ -84,15 +84,18 @@
 /**
  *  通过字符串key创建对应的keys
  */
+// 黄玉辉：把一级或多级key拆分，封装成MJPropertyKey放在数组中。
 - (NSArray *)propertyKeysWithStringKey:(NSString *)stringKey
 {
     if (stringKey.length == 0) return nil;
     
     NSMutableArray *propertyKeys = [NSMutableArray array];
     // 如果有多级映射
+    // 黄玉辉：如 @"oldName" : @"name.oldName"
     NSArray *oldKeys = [stringKey componentsSeparatedByString:@"."];
     
     for (NSString *oldKey in oldKeys) {
+        // 黄玉辉：带索引的情况，如 @"nameChangedTime" : @"name.info[1].nameChangedTime"。
         NSUInteger start = [oldKey rangeOfString:@"["].location;
         if (start != NSNotFound) { // 有索引的key
             NSString *prefixKey = [oldKey substringToIndex:start];
@@ -108,6 +111,7 @@
             /** 解析索引 **/
             // 元素
             NSArray *cmps = [[indexKey stringByReplacingOccurrencesOfString:@"[" withString:@""] componentsSeparatedByString:@"]"];
+            // 黄玉辉：可能有多级索引，如info[1][2]。
             for (NSInteger i = 0; i<cmps.count - 1; i++) {
                 MJPropertyKey *subPropertyKey = [[MJPropertyKey alloc] init];
                 subPropertyKey.type = MJPropertyKeyTypeArray;
@@ -125,11 +129,16 @@
 }
 
 /** 对应着字典中的key */
+/**
+ 黄玉辉：重要代码
+ 把当前MJProperty对象实例所属的类与在该类下所对应的字典key保存为一条记录。
+ */
 - (void)setOriginKey:(id)originKey forClass:(Class)c
 {
     if ([originKey isKindOfClass:[NSString class]]) { // 字符串类型的key
         NSArray *propertyKeys = [self propertyKeysWithStringKey:originKey];
         if (propertyKeys.count) {
+            // 黄玉辉：注意，数组里的元素也是数组，内层数组的元素是MJPropertyKey，是由一级或多级key拆分封装而成。
             [self setPorpertyKeys:@[propertyKeys] forClass:c];
         }
     } else if ([originKey isKindOfClass:[NSArray class]]) {
@@ -147,6 +156,14 @@
 }
 
 /** 对应着字典中的多级key */
+/**
+ 黄玉辉：
+ 如 @"oldName" : @"name.oldName"
+ 名字为oldName的MJProperty对象实例保存了一条记录，该记录的key是它所属的类，value是一个数组，
+ 数组里面的元素也是数组，内层数组的元素则是MJPropertyKey，它们的名字分别是name和oldName。
+ 以下这种情况比较好理解：
+ @"otherName" : @[@"otherName", @"name.newName", @"name.oldName"]
+ */
 - (void)setPorpertyKeys:(NSArray *)propertyKeys forClass:(Class)c
 {
     if (propertyKeys.count == 0) return;

@@ -55,6 +55,12 @@ static NSMutableDictionary *cachedPropertiesDict_;
 }
 
 #pragma mark - --私有方法--
+/**
+ 黄玉辉：重要代码
+ 有些属性名可能对应与其不同名的字典key(一级key，如name，或多级key，如student.name)，如属性名ID，
+ 可能对应的key是id，属性名name，对应的key是student.name。在这里进行检查，如果有不一致的，就返
+ 回实际的key。
+ */
 + (id)propertyKey:(NSString *)propertyName
 {
     MJExtensionAssertParamNotNil2(propertyName, nil);
@@ -134,6 +140,7 @@ static NSMutableDictionary *cachedPropertiesDict_;
 }
 
 #pragma mark - --公共方法--
+// 黄玉辉：重要代码，获取类的所有属性并封装好，然后再遍历。
 + (void)mj_enumerateProperties:(MJPropertiesEnumeration)enumeration
 {
     // 获得成员变量
@@ -148,6 +155,7 @@ static NSMutableDictionary *cachedPropertiesDict_;
 }
 
 #pragma mark - 公共方法
+// 黄玉辉：重要代码，获取类的所有属性，并封装好。
 + (NSMutableArray *)properties
 {
     NSMutableArray *cachedProperties = [self dictForKey:&MJCachedPropertiesKey][NSStringFromClass(self)];
